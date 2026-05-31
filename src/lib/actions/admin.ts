@@ -35,6 +35,7 @@ export type FullCharacterPatch = Partial<{
   notes: string | null;
   avatarUrl: string | null;
   xp: number;
+  level: number;
   enduranceTrainings: number;
   fluxTrainings: number;
   technicalTrainings: number;
@@ -93,6 +94,7 @@ export async function updateCharacterFull(
   }
 
   if (typeof patch.xp === "number") u.xp = clampInt(patch.xp, 0, 1000000);
+  if (typeof patch.level === "number") u.level = clampInt(patch.level, 0, 99);
   if (typeof patch.enduranceTrainings === "number")
     u.enduranceTrainings = clampInt(patch.enduranceTrainings, 0, 99);
   if (typeof patch.fluxTrainings === "number")
@@ -183,6 +185,7 @@ export async function createCharacter(
       nom: "",
       age: 25,
       xp: 0,
+      level: 0,
       enduranceTrainings: 2,
       fluxTrainings: 0,
       technicalTrainings: 0,

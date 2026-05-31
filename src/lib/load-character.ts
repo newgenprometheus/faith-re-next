@@ -99,7 +99,7 @@ type CharacterRow = typeof characters.$inferSelect & {
 
 function hydrate(row: CharacterRow): HydratedCharacter {
   const skills = Object.fromEntries(row.skills.map((s) => [s.skillName, s.points]));
-  const level = calculateLevel(row.xp);
+  const level = row.level;
   const bonus = getLevelBonus(level);
   const constiScore = calculateAttribute(skills, "CONSTITUTION");
   const psyScore = calculateAttribute(skills, "PSYCHÉ");

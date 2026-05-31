@@ -118,6 +118,7 @@ export const characters = pgTable("character", {
   nom: text("nom").default("").notNull(),
   age: integer("age").default(25).notNull(),
   xp: integer("xp").default(0).notNull(),
+  level: integer("level").default(0).notNull(),
   // entraînements (3 axes) : physique (= endurance, existant), flux, technique
   enduranceTrainings: integer("endurance_trainings").default(2).notNull(),
   fluxTrainings: integer("flux_trainings").default(0).notNull(),

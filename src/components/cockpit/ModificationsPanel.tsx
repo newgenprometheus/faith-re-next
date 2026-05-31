@@ -30,6 +30,7 @@ type Form = {
   bio: string;
   notes: string;
   xp: number;
+  level: number;
   enduranceTrainings: number;
   fluxTrainings: number;
   technicalTrainings: number;
@@ -59,6 +60,7 @@ function initForm(c: Character): Form {
     bio: c.bio ?? "",
     notes: c.notes ?? "",
     xp: c.xp,
+    level: c.level,
     enduranceTrainings: c.enduranceTrainings,
     fluxTrainings: c.fluxTrainings,
     technicalTrainings: c.technicalTrainings,
@@ -135,6 +137,7 @@ function Editor({
       bio: f.bio,
       notes: f.notes,
       xp: f.xp,
+      level: f.level,
       enduranceTrainings: f.enduranceTrainings,
       fluxTrainings: f.fluxTrainings,
       technicalTrainings: f.technicalTrainings,
@@ -306,6 +309,7 @@ function Editor({
           {/* Progression */}
           <Section title="Progression & entraînements">
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              {N("level", "Niveau")}
               {N("xp", "XP total")}
               {N("combatsReal", "Combats réels")}
               {N("enduranceTrainings", "Entraîn. endurance")}

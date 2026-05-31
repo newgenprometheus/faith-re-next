@@ -100,7 +100,7 @@ export function EvolutionSection({
   const [isPending, startTransition] = useTransition();
   const [xpDraft, setXpDraft] = useState<string>(String(character.xp));
 
-  const level = calculateLevel(character.xp);
+  const level = character.level;
   const bonus = getLevelBonus(level);
   const nextXp = nextLevelXp(level);
   const isMaxLevel = level >= XP_THRESHOLDS.length - 1;

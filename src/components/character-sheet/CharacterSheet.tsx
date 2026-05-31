@@ -74,7 +74,7 @@ export default function CharacterSheet({
   onRemoveCondition,
 }: CharacterSheetProps) {
   const allocated = countAllocatedPoints(character.skills);
-  const derivedLevel = calculateLevel(character.xp);
+  const derivedLevel = character.level;
   const skillCap = getSkillCap(derivedLevel, character.name); // 80 + 1 par niveau (78 pour Prométhée)
   const isCapped = allocated >= skillCap;
 

@@ -126,15 +126,15 @@
    Linear tokens — light/dark changeable theme
    ============================================================ */
 :root {
-  /* V3 Glossy Bento Glassmorphism off-white base surface */
-  --background: #f3f5f9;
+  /* V6 Advanced Neumorphism off-white base surface */
+  --background: #eceef2;
   --foreground: #1c212e;
-  --card: rgba(255, 255, 255, 0.72);
+  --card: #eceef2;
   --card-foreground: #1c212e;
-  --popover: rgba(255, 255, 255, 0.85);
+  --popover: #eceef2;
   --popover-foreground: #1c212e;
-  --surface-3: rgba(0, 0, 0, 0.06);
-  --surface-4: rgba(0, 0, 0, 0.09);
+  --surface-3: rgba(0, 0, 0, 0.04);
+  --surface-4: rgba(0, 0, 0, 0.07);
 
   /* lavande (accent unique) */
   --primary: #5e6ad2;
@@ -143,11 +143,11 @@
   --primary-focus: #5e69d1;
   --primary-deep: #3c4485;
 
-  --secondary: rgba(0, 0, 0, 0.03);
+  --secondary: rgba(0, 0, 0, 0.02);
   --secondary-foreground: #1c212e;
-  --muted: rgba(0, 0, 0, 0.03);
+  --muted: rgba(0, 0, 0, 0.02);
   --muted-foreground: #5e6a82;
-  --accent: rgba(0, 0, 0, 0.05);
+  --accent: rgba(0, 0, 0, 0.03);
   --accent-foreground: #1c212e;
 
   /* ink ladder */
@@ -156,10 +156,10 @@
   --ink-tertiary: #929db2;
 
   /* hairlines - thin glass borders */
-  --border: rgba(0, 0, 0, 0.08);
-  --input: rgba(0, 0, 0, 0.04);
-  --hairline-strong: rgba(0, 0, 0, 0.12);
-  --hairline-tertiary: rgba(0, 0, 0, 0.16);
+  --border: rgba(0, 0, 0, 0.06);
+  --input: rgba(0, 0, 0, 0.03);
+  --hairline-strong: rgba(0, 0, 0, 0.10);
+  --hairline-tertiary: rgba(0, 0, 0, 0.14);
   --ring: #5e6ad2;
 
   /* vitaux JDR */
@@ -183,13 +183,13 @@
   --chart-5: #5e6a82;
 
   /* sidebar */
-  --sidebar: rgba(255, 255, 255, 0.45);
+  --sidebar: #eceef2;
   --sidebar-foreground: #1c212e;
   --sidebar-primary: #5e6ad2;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(0, 0, 0, 0.03);
+  --sidebar-accent: rgba(0, 0, 0, 0.02);
   --sidebar-accent-foreground: #1c212e;
-  --sidebar-border: rgba(0, 0, 0, 0.06);
+  --sidebar-border: rgba(0, 0, 0, 0.04);
   --sidebar-ring: #5e6ad2;
 
   --radius: 0.5rem;
@@ -200,27 +200,27 @@
   --surface-overlay: var(--surface-4);
   --foreground-muted: #3a4256;
   --foreground-subtle: #5e6a82;
-  --border-strong: rgba(0, 0, 0, 0.06);
-  --accent: rgba(0, 0, 0, 0.03);
+  --border-strong: rgba(0, 0, 0, 0.04);
+  --accent: rgba(0, 0, 0, 0.02);
   --accent-dim: rgba(94, 106, 210, 0.06);
   --accent-foreground: #1c212e;
   --gauge-sante: #e5484d;
   --gauge-mental: #2bb8c4;
   --gauge-endurance: #30a46c;
   --gauge-flux: #5e6a82;
-  --gauge-track: rgba(0, 0, 0, 0.04);
+  --gauge-track: rgba(0, 0, 0, 0.03);
 }
 
 .dark {
-  /* V3 Glossy Bento Glassmorphism abysse black base surface */
-  --background: #060709;
+  /* V6 Advanced Neumorphism abysse black base surface */
+  --background: #0d0e12;
   --foreground: #e4e6eb;
-  --card: rgba(10, 11, 15, 0.65);
+  --card: #0d0e12;
   --card-foreground: #e4e6eb;
-  --popover: rgba(7, 8, 10, 0.85);
+  --popover: #0d0e12;
   --popover-foreground: #e4e6eb;
-  --surface-3: rgba(255, 255, 255, 0.06);
-  --surface-4: rgba(255, 255, 255, 0.09);
+  --surface-3: rgba(255, 255, 255, 0.04);
+  --surface-4: rgba(255, 255, 255, 0.07);
 
   /* lavande */
   --primary: #5e6ad2;
@@ -229,11 +229,11 @@
   --primary-focus: #5e69d1;
   --primary-deep: #3c4485;
 
-  --secondary: rgba(255, 255, 255, 0.03);
+  --secondary: rgba(255, 255, 255, 0.02);
   --secondary-foreground: #e4e6eb;
-  --muted: rgba(255, 255, 255, 0.03);
+  --muted: rgba(255, 255, 255, 0.02);
   --muted-foreground: #8e96a5;
-  --accent: rgba(255, 255, 255, 0.05);
+  --accent: rgba(255, 255, 255, 0.03);
   --accent-foreground: #e4e6eb;
 
   /* ink ladder */
@@ -242,10 +242,10 @@
   --ink-tertiary: #5c6270;
 
   /* hairlines - thin chrome boundaries */
-  --border: rgba(255, 255, 255, 0.08);
-  --input: rgba(255, 255, 255, 0.04);
-  --hairline-strong: rgba(255, 255, 255, 0.12);
-  --hairline-tertiary: rgba(255, 255, 255, 0.16);
+  --border: rgba(255, 255, 255, 0.06);
+  --input: rgba(255, 255, 255, 0.03);
+  --hairline-strong: rgba(255, 255, 255, 0.10);
+  --hairline-tertiary: rgba(255, 255, 255, 0.14);
   --ring: #5e6ad2;
 
   /* vitaux JDR */
@@ -269,13 +269,13 @@
   --chart-5: #8e96a5;
 
   /* sidebar */
-  --sidebar: rgba(10, 11, 15, 0.45);
+  --sidebar: #0d0e12;
   --sidebar-foreground: #e4e6eb;
   --sidebar-primary: #5e6ad2;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(255, 255, 255, 0.03);
+  --sidebar-accent: rgba(255, 255, 255, 0.02);
   --sidebar-accent-foreground: #e4e6eb;
-  --sidebar-border: rgba(255, 255, 255, 0.06);
+  --sidebar-border: rgba(255, 255, 255, 0.04);
   --sidebar-ring: #5e6ad2;
 
   /* tokens v0 */
@@ -284,15 +284,15 @@
   --surface-overlay: var(--surface-4);
   --foreground-muted: #c9ccd3;
   --foreground-subtle: #8e96a5;
-  --border-strong: rgba(255, 255, 255, 0.06);
-  --accent: rgba(255, 255, 255, 0.03);
+  --border-strong: rgba(255, 255, 255, 0.04);
+  --accent: rgba(255, 255, 255, 0.02);
   --accent-dim: rgba(94, 106, 210, 0.16);
   --accent-foreground: #e4e6eb;
   --gauge-sante: #ef4444;
   --gauge-mental: #06b6d4;
   --gauge-endurance: #22c55e;
   --gauge-flux: #8e96a5;
-  --gauge-track: rgba(255, 255, 255, 0.04);
+  --gauge-track: rgba(255, 255, 255, 0.03);
 }
 
 @layer base {
@@ -418,23 +418,18 @@ body > * { position: relative; z-index: 1; }
    ============================================================ */
 .glass {
   background: var(--card);
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
   box-shadow:
-    0 8px 32px rgba(31, 38, 135, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 4px 6px rgba(0, 0, 0, 0.02);
+    5px 5px 12px rgba(163, 177, 198, 0.4),
+    -5px -5px 12px #ffffff;
 }
 .dark .glass {
   background: var(--card);
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.015);
   box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    6px 6px 16px rgba(0, 0, 0, 0.6),
+    -6px -6px 16px rgba(255, 255, 255, 0.03);
 }
 /* .glass-strong / .card-grimoire / .card-hero supprimés (verre lourd grimoire,
    direction v0 → utiliser .glass aligné v0 ci-dessus ou <Card> shadcn) */
@@ -672,24 +667,21 @@ body > * { position: relative; z-index: 1; }
 .campaign-panel {
   position: relative;
   overflow: hidden;
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 12px;
   background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.03),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 4px 6px rgba(0, 0, 0, 0.01);
+    5px 5px 12px rgba(163, 177, 198, 0.4),
+    -5px -5px 12px #ffffff;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark .campaign-panel {
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.015);
   background: var(--card);
   box-shadow: 
-    0 24px 60px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    6px 6px 16px rgba(0, 0, 0, 0.6),
+    -6px -6px 16px rgba(255, 255, 255, 0.03);
 }
 
 .campaign-panel::before {
@@ -697,18 +689,20 @@ body > * { position: relative; z-index: 1; }
 }
 
 .campaign-subpanel {
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.01);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--card);
   box-shadow:
-    inset 0 2px 4px rgba(0, 0, 0, 0.04);
+    inset 2px 2px 5px rgba(163, 177, 198, 0.35),
+    inset -2px -2px 5px #ffffff;
 }
 
 .dark .campaign-subpanel {
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.005);
+  background: var(--card);
   box-shadow:
-    inset 0 2px 6px rgba(0, 0, 0, 0.35);
+    inset 3px 3px 6px rgba(0, 0, 0, 0.55),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.015);
 }
 
 .campaign-header-line {
@@ -732,26 +726,28 @@ body > * { position: relative; z-index: 1; }
    radius ni ombre portée (bord d'écran), mais avec backdrop-blur + arête. */
 .chrome-rail {
   background: var(--sidebar);
-  backdrop-filter: blur(32px) saturate(140%);
-  -webkit-backdrop-filter: blur(32px) saturate(140%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-right: 1px solid var(--border);
 }
 .dark .chrome-rail {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-right: 1px solid var(--border);
 }
 
 /* Tuile / contrôle en creux (compteurs de nav, chips de top bar, boutons
    d'état) — reprend exactement le relief INSET de .campaign-subpanel. */
 .chrome-tile {
-  border: 1px solid rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.01);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.02);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+  background: var(--card);
+  box-shadow: 
+    inset 2px 2px 5px rgba(163, 177, 198, 0.35),
+    inset -2px -2px 5px #ffffff;
 }
 .dark .chrome-tile {
-  border: 1px solid rgba(255, 255, 255, 0.03);
-  background: rgba(0, 0, 0, 0.25);
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.005);
+  background: var(--card);
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.55),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.015);
 }
 
 /* ============================================================
@@ -795,20 +791,23 @@ a:hover svg.lucide {
 
 /* Polished Tab Track (TabsList) */
 [role="tablist"] {
-  background: rgba(0, 0, 0, 0.03) !important;
-  border: 1px solid rgba(0, 0, 0, 0.06) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  background: var(--card) !important;
+  border: 1px solid rgba(0, 0, 0, 0.02) !important;
+  box-shadow: 
+    inset 2px 2px 5px rgba(163, 177, 198, 0.35),
+    inset -2px -2px 5px #ffffff !important;
   padding: 3px !important;
   border-radius: 10px !important;
-  backdrop-filter: blur(8px) !important;
 }
 .dark [role="tablist"] {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1) !important;
+  background: var(--card) !important;
+  border: 1px solid rgba(255, 255, 255, 0.005) !important;
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.55),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.015) !important;
 }
 
-/* Glossy Steel Tab Triggers (TabsTrigger) */
+/* Soft Neumorphic Tab Triggers (TabsTrigger) */
 [role="tab"] {
   font-family: var(--font-sans);
   font-weight: 500;
@@ -819,20 +818,21 @@ a:hover svg.lucide {
   border-radius: 7px !important;
 }
 [role="tab"][data-state="active"] {
-  background: linear-gradient(180deg, #ffffff, #f5f6f8) !important;
+  background: var(--card) !important;
   color: var(--primary) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
   box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.04),
+    3px 3px 8px rgba(163, 177, 198, 0.4),
+    -3px -3px 8px #ffffff,
     inset 0 1px 0 #ffffff !important;
 }
 .dark [role="tab"][data-state="active"] {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)) !important;
+  background: var(--card) !important;
   color: #ffffff !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.01) !important;
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    4px 4px 10px rgba(0, 0, 0, 0.5),
+    -4px -4px 10px rgba(255, 255, 255, 0.03) !important;
 }
 
 /* ============================================================
@@ -872,34 +872,44 @@ a:hover svg.lucide {
 
 /* Stepper +/- (acier glossy) */
 .stepper-btn {
-  background: linear-gradient(180deg, #ffffff, #f5f6f8);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    2px 2px 5px rgba(163, 177, 198, 0.35),
+    -2px -2px 5px #ffffff;
   border-radius: 6px;
   transition: all 0.15s ease;
 }
 .dark .stepper-btn {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.01);
+  box-shadow: 
+    3px 3px 6px rgba(0, 0, 0, 0.5),
+    -3px -3px 6px rgba(255, 255, 255, 0.02);
 }
 .stepper-btn:hover:not(:disabled) {
   transform: scale(1.05);
-  background: #ffffff;
   border-color: var(--primary);
+  box-shadow: 
+    3px 3px 6px rgba(163, 177, 198, 0.4),
+    -3px -3px 6px #ffffff;
 }
 .dark .stepper-btn:hover:not(:disabled) {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
   border-color: var(--primary);
+  box-shadow: 
+    4px 4px 8px rgba(0, 0, 0, 0.6),
+    -4px -4px 8px rgba(255, 255, 255, 0.03);
 }
 .stepper-btn:active:not(:disabled) {
   transform: scale(0.97);
-  background: rgba(0, 0, 0, 0.02);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    inset 2px 2px 4px rgba(163, 177, 198, 0.45),
+    inset -2px -2px 4px #ffffff !important;
 }
 .dark .stepper-btn:active:not(:disabled) {
-  background: rgba(0, 0, 0, 0.4);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.65),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.015) !important;
 }
 
 /* Polished Glass Fields (Inputs, Textareas, Selects) — définition unique.
@@ -912,9 +922,11 @@ input[type="text"],
 input[type="number"], 
 textarea, 
 select {
-  background: rgba(255, 255, 255, 0.6) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+  background: var(--card) !important;
+  border: 1px solid rgba(0, 0, 0, 0.01) !important;
+  box-shadow: 
+    inset 2px 2px 5px rgba(163, 177, 198, 0.35),
+    inset -2px -2px 5px #ffffff !important;
   transition: all 0.2s ease !important;
   outline: none !important;
   border-radius: 8px !important;
@@ -924,67 +936,75 @@ select {
 .dark input[type="number"], 
 .dark textarea, 
 .dark select {
-  background: rgba(0, 0, 0, 0.35) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+  background: var(--card) !important;
+  border: 1px solid rgba(255, 255, 255, 0.005) !important;
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.55),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.015) !important;
 }
 .input-grimoire:focus, 
 input[type="text"]:focus, 
 input[type="number"]:focus, 
 textarea:focus, 
 select:focus {
-  background: #ffffff !important;
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.2) !important;
+  box-shadow: 
+    0 0 0 2px rgba(94, 106, 210, 0.25),
+    inset 2px 2px 5px rgba(163, 177, 198, 0.2),
+    inset -2px -2px 5px #ffffff !important;
 }
 .dark .input-grimoire:focus, 
 .dark input[type="text"]:focus, 
 .dark input[type="number"]:focus, 
 .dark textarea:focus, 
 .dark select:focus {
-  background: rgba(0, 0, 0, 0.6) !important;
   border-color: var(--primary) !important;
-  box-shadow: 0 0 0 2px rgba(94, 106, 210, 0.25) !important;
+  box-shadow: 
+    0 0 0 2px rgba(94, 106, 210, 0.3),
+    inset 3px 3px 6px rgba(0, 0, 0, 0.4),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.01) !important;
 }
 
 /* Glossy Steel Buttons — rendu unique de .btn-grimoire & .btn-ghost
    (structure typo/padding/radius définie plus haut). */
 .btn-grimoire, .btn-ghost {
-  background: linear-gradient(180deg, #ffffff, #f5f6f8);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s ease-in-out;
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    3px 3px 8px rgba(163, 177, 198, 0.35),
+    -3px -3px 8px #ffffff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dark .btn-grimoire, .dark .btn-ghost {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card);
+  border: 1px solid rgba(255, 255, 255, 0.01);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    4px 4px 10px rgba(0, 0, 0, 0.5),
+    -4px -4px 10px rgba(255, 255, 255, 0.02);
 }
 .btn-grimoire:hover:not(:disabled), .btn-ghost:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #ffffff;
   border-color: var(--primary);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: 
+    4px 4px 10px rgba(163, 177, 198, 0.4),
+    -4px -4px 10px #ffffff;
 }
 .dark .btn-grimoire:hover:not(:disabled), .dark .btn-ghost:hover:not(:disabled) {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   border-color: var(--primary);
   box-shadow:
-    0 6px 16px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    5px 5px 12px rgba(0, 0, 0, 0.6),
+    -5px -5px 12px rgba(255, 255, 255, 0.03);
 }
 .btn-grimoire:active:not(:disabled), .btn-ghost:active:not(:disabled) {
   transform: translateY(0);
-  background: rgba(0, 0, 0, 0.02);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+  box-shadow: 
+    inset 2px 2px 5px rgba(163, 177, 198, 0.45),
+    inset -2px -2px 5px #ffffff !important;
 }
 .dark .btn-grimoire:active:not(:disabled), .dark .btn-ghost:active:not(:disabled) {
-  background: rgba(0, 0, 0, 0.4);
   box-shadow:
-    inset 0 1px 3px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.015);
+    inset 3px 3px 6px rgba(0, 0, 0, 0.6),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.015) !important;
 }
 
 /* ============================================================
