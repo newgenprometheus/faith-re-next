@@ -324,9 +324,24 @@ export async function updateXp(
   const previousLevel = calculateLevel(character.xp);
   const level = calculateLevel(xpInt);
 
+  const levelDiff = level - previousLevel;
+  let nextHp = character.currentHp;
+  let nextMental = character.currentMental;
+
+  if (levelDiff !== 0) {
+    nextHp += levelDiff * 20;
+    nextMental += levelDiff * 20;
+  }
+
   await db
     .update(characters)
-    .set({ xp: xpInt, level, updatedAt: new Date() })
+    .set({
+      xp: xpInt,
+      level,
+      currentHp: nextHp,
+      currentMental: nextMental,
+      updatedAt: new Date(),
+    })
     .where(eq(characters.id, characterId));
 
   revalidateAll();

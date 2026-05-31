@@ -14,6 +14,8 @@
 
 import { SKILL_GROUPS, calculateAttribute, type AttributeName } from "./skills";
 import {
+  BASE_HP,
+  BASE_MHP,
   calculateLevel,
   getLevelBonus,
   getEnduranceTier,
@@ -27,6 +29,7 @@ export type CharacterPayload = {
   nom?: string | null;
   age: number;
   xp: number;
+  level?: number;
   enduranceTrainings: number;
   currentHp: number;
   currentMental: number;
@@ -74,12 +77,12 @@ function fullName(char: CharacterPayload): string {
 
 function resolveMaxHp(char: CharacterPayload, level: number): number {
   if (typeof char.maxHp === "number") return char.maxHp;
-  return 40 + getLevelBonus(level) + calculateAttribute(char.skills, "CONSTITUTION");
+  return BASE_HP + getLevelBonus(level) + calculateAttribute(char.skills, "CONSTITUTION");
 }
 
 function resolveMaxMental(char: CharacterPayload, level: number): number {
   if (typeof char.maxMental === "number") return char.maxMental;
-  return 40 + getLevelBonus(level) + calculateAttribute(char.skills, "PSYCHÉ");
+  return BASE_MHP + getLevelBonus(level) + calculateAttribute(char.skills, "PSYCHÉ");
 }
 
 function fateStars(fatePoints: number): string {
@@ -93,7 +96,7 @@ function buildCharacterEmbed(
   char: CharacterPayload,
   mjMode: boolean,
 ): DiscordEmbed {
-  const level = calculateLevel(char.xp);
+  const level = char.level ?? calculateLevel(char.xp);
   const tier = getEnduranceTier(char.enduranceTrainings);
   const maxHp = resolveMaxHp(char, level);
   const maxMental = resolveMaxMental(char, level);

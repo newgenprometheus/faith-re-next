@@ -71,8 +71,21 @@ export function getVitalityState(hp: number): VitalityState {
 }
 
 // --- XP / Niveau ---
-export const XP_THRESHOLDS = [0, 500, 1000, 2000, 3000, 4000] as const;
-export const LEVEL_BONUS = [0, 20, 40, 80, 160, 320] as const;
+export const XP_THRESHOLDS = (() => {
+  const thresholds = [0, 500, 1000];
+  for (let i = 3; i <= 100; i++) {
+    thresholds.push(1000 + (i - 2) * 1000);
+  }
+  return thresholds;
+})();
+
+export const LEVEL_BONUS = (() => {
+  const bonuses = [];
+  for (let i = 0; i <= 100; i++) {
+    bonuses.push(i * 20);
+  }
+  return bonuses;
+})();
 
 // --- Paliers d'Endurance (du plus haut au plus bas) ---
 export const ENDURANCE_TIERS = [
@@ -107,7 +120,7 @@ export function calculateLevel(xp: number): number {
 }
 
 export function getLevelBonus(level: number): number {
-  return LEVEL_BONUS[Math.min(Math.max(0, level), LEVEL_BONUS.length - 1)];
+  return Math.max(0, level) * 20;
 }
 
 export function getEnduranceTier(trainings: number) {

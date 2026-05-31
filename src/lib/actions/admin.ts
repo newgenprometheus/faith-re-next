@@ -69,7 +69,7 @@ export async function updateCharacterFull(
   characterId: string,
   patch: FullCharacterPatch,
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
-  await assertMJOnly(characterId);
+  const { character } = await assertMJOnly(characterId);
 
   const u: Record<string, unknown> = { updatedAt: new Date() };
 
@@ -94,7 +94,21 @@ export async function updateCharacterFull(
   }
 
   if (typeof patch.xp === "number") u.xp = clampInt(patch.xp, 0, 1000000);
-  if (typeof patch.level === "number") u.level = clampInt(patch.level, 0, 99);
+  
+  if (typeof patch.level === "number") {
+    const levelVal = clampInt(patch.level, 0, 99);
+    u.level = levelVal;
+    const levelDiff = levelVal - character.level;
+    if (levelDiff !== 0) {
+      if (patch.currentHp === undefined) {
+        u.currentHp = clampInt(character.currentHp + levelDiff * 20, -21, 100000);
+      }
+      if (patch.currentMental === undefined) {
+        u.currentMental = clampInt(character.currentMental + levelDiff * 20, 0, 100000);
+      }
+    }
+  }
+
   if (typeof patch.enduranceTrainings === "number")
     u.enduranceTrainings = clampInt(patch.enduranceTrainings, 0, 99);
   if (typeof patch.fluxTrainings === "number")

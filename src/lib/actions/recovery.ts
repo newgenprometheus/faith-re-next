@@ -54,10 +54,10 @@ export async function recoverHp(characterId: string): Promise<
   const gain = Math.max(0, Math.floor(raw / 2));
 
   // Max HP dérivé : BASE_HP + bonus_level + score CONSTITUTION (somme des 5 skills)
-  const level = calculateLevel(char.xp);
+  const level = char.level;
   const bonus = getLevelBonus(level);
   const constiScore = calculateAttribute(skillsMap, "CONSTITUTION");
-  const maxHp = BASE_HP + bonus + constiScore;
+  const maxHp = char.maxHpOverride ?? (BASE_HP + bonus + constiScore);
 
   const newHp = Math.min(maxHp, char.currentHp + gain);
 
