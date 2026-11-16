@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { Dices } from "lucide-react";
 import {
   Sheet,
@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { type AttributeName } from "@/lib/skills";
+import { type RollCategory, ROLL_CATEGORIES, getDefaultCategory } from "@/lib/faith-system";
 
 /**
  * Drawer latéral pour le lancer de dé avec DD.
@@ -36,19 +38,29 @@ export type RollContext = {
   bonus: number;
   /** Texte du bonus pour preview (ex: "INTELLECT + Encyclopédie") */
   bonusLabel: string;
+  attrName: AttributeName;
+  skillName: string | null;
 };
 
 type Props = {
   context: RollContext | null;
   onClose: () => void;
-  onRoll: (dd: number | null) => Promise<void>;
+  onRoll: (dd: number | null, category: RollCategory) => Promise<void>;
 };
 
 export function DDDrawer({ context, onClose, onRoll }: Props) {
   const [dd, setDd] = useState<number | null>(12);
   const [custom, setCustom] = useState<number>(10);
   const [mode, setMode] = useState<"preset" | "free" | "libre">("preset");
+  const [category, setCategory] = useState<RollCategory>("autre");
   const [isPending, startTransition] = useTransition();
+
+  // Initialise/Sync la catégorie par défaut quand le context s'ouvre
+  useEffect(() => {
+    if (context) {
+      setCategory(getDefaultCategory(context.attrName, context.skillName));
+    }
+  }, [context]);
 
   // Reset state à chaque ouverture
   function resetDifficulty() {
@@ -62,7 +74,7 @@ export function DDDrawer({ context, onClose, onRoll }: Props) {
 
   function submit() {
     startTransition(async () => {
-      await onRoll(effectiveDD);
+      await onRoll(effectiveDD, category);
     });
   }
 
@@ -78,7 +90,7 @@ export function DDDrawer({ context, onClose, onRoll }: Props) {
     >
       <SheetContent
         side="right"
-        className="w-[360px] max-w-[90vw] gap-0 sm:max-w-[360px]"
+        className="w-[360px] max-w-[90vw] gap-0 sm:max-w-[360px] flex flex-col h-full"
         aria-describedby={undefined}
       >
         {/* Header */}
@@ -101,6 +113,39 @@ export function DDDrawer({ context, onClose, onRoll }: Props) {
             <span className="text-primary">{context?.bonus}</span>
           </p>
           <p className="mt-1 text-xs text-foreground-muted">{context?.bonusLabel}</p>
+        </section>
+
+        {/* Type de jet */}
+        <section className="border-b border-border px-6 py-4">
+          <p className="mb-2.5 eyebrow">
+            Type de jet
+          </p>
+          <div className="grid grid-cols-4 gap-1.5">
+            {ROLL_CATEGORIES.map((cat) => {
+              const active = category === cat.value;
+              return (
+                <Button
+                  key={cat.value}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCategory(cat.value)}
+                  className={`h-auto flex-col gap-1 py-2 px-1 text-center transition-all ${
+                    active
+                      ? "border-primary bg-primary/15 text-primary-hover hover:bg-primary/20 hover:text-primary-hover"
+                      : "border-border hover:bg-surface-overlay/50"
+                  }`}
+                >
+                  <span className="text-base" role="img" aria-label={cat.label}>
+                    {cat.icon}
+                  </span>
+                  <span className="text-[9px] font-semibold uppercase tracking-wider">
+                    {cat.label}
+                  </span>
+                </Button>
+              );
+            })}
+          </div>
         </section>
 
         {/* Selector DD */}
@@ -207,7 +252,7 @@ export function DDDrawer({ context, onClose, onRoll }: Props) {
             Récap
           </p>
           <p className="tabular text-sm leading-relaxed text-foreground-muted">
-            2d6 + <span className="text-primary">{context?.bonus}</span>
+            2d6 + <span className="text-primary">{context?.bonus}</span> [{(category || "").charAt(0).toUpperCase() + (category || "").slice(1)}]
             {mode === "libre" ? (
               <span className="ml-2 text-foreground-muted">— jet sans difficulté</span>
             ) : (

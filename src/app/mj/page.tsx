@@ -7,6 +7,7 @@ import {
   loadJournalEntries,
   loadNpcs,
   loadSessionLogs,
+  loadAffiliations,
 } from "@/lib/campaign";
 import { listTrainingRequestsForMJ } from "@/lib/actions";
 import { CockpitShell } from "@/components/cockpit/CockpitShell";
@@ -17,6 +18,7 @@ import {
 import { StatusNotesPanel } from "@/components/cockpit/StatusNotesPanel";
 import { JournalView } from "@/components/cockpit/JournalView";
 import { NpcsView } from "@/components/cockpit/NpcsView";
+import { AffiliationsView } from "@/components/cockpit/AffiliationsView";
 import { RulesView } from "@/components/cockpit/RulesView";
 import { SessionLogsView } from "@/components/cockpit/SessionLogsView";
 import { TableView } from "@/components/cockpit/TableView";
@@ -47,15 +49,16 @@ export default async function MjDashboardPage({
   const view = params.view ?? "dashboard";
   const playerView = params.mode === "player";
   const selectedId = params.id ?? allChars[0]?.id;
-  const [selected, statusNotes, journalEntries, npcList, sessionLogs] =
+  const [selected, statusNotes, journalEntries, npcList, sessionLogs, affiliationsList] =
     await Promise.all([
       selectedId ? loadCharacter(selectedId) : Promise.resolve(null),
       selectedId ? loadStatusNotes(selectedId) : Promise.resolve([]),
       view === "journal"
         ? loadJournalEntries(ctx.campaign.id)
         : Promise.resolve([]),
-      view === "npcs" ? loadNpcs(ctx.campaign.id) : Promise.resolve([]),
+      (view === "npcs" || view === "affiliations") ? loadNpcs(ctx.campaign.id) : Promise.resolve([]),
       view === "logs" ? loadSessionLogs(ctx.campaign.id) : Promise.resolve([]),
+      (view === "npcs" || view === "affiliations") ? loadAffiliations(ctx.campaign.id) : Promise.resolve([]),
     ]);
 
   const sessionDate = ctx.session.date.toLocaleDateString("fr-FR", {
@@ -75,7 +78,15 @@ export default async function MjDashboardPage({
       />
     );
   } else if (view === "npcs") {
-    center = <NpcsView campaignId={ctx.campaign.id} npcs={npcList} canEdit />;
+    center = <NpcsView campaignId={ctx.campaign.id} npcs={npcList} affiliations={affiliationsList} canEdit />;} else if (view === "affiliations") {
+    center = (
+      <AffiliationsView
+        campaignId={ctx.campaign.id}
+        affiliations={affiliationsList}
+        npcs={npcList}
+        canEdit
+      />
+    );
   } else if (view === "logs") {
     center = (
       <SessionLogsView

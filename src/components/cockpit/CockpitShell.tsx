@@ -25,6 +25,7 @@ import {
   MonitorPlay,
   Eye,
   FileDown,
+  Shield,
 } from "lucide-react";
 import { CrestGlyph } from "@/components/glyphs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -48,6 +49,7 @@ const NAV: {
   { label: "Journal", icon: BookText, view: "journal" },
   { label: "Maps", icon: Map, soon: true },
   { label: "NPCs", icon: UserCircle2, view: "npcs" },
+  { label: "Affiliations", icon: Shield, view: "affiliations" },
   { label: "Items", icon: Package, soon: true },
   { label: "Logs", icon: History, view: "logs" },
   { label: "Règles", icon: Scale, view: "regles" },

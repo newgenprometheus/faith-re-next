@@ -14,6 +14,7 @@ import {
   journalEntries,
   npcs,
   sessionLogs,
+  affiliations,
 } from "@/db/schema";
 
 export type CampaignSummary = { id: string; name: string };
@@ -148,6 +149,35 @@ export async function loadNpcs(campaignId: string) {
     role: r.role,
     disposition: r.disposition,
     description: r.description,
+    avatarUrl: r.avatarUrl,
+    intellect: r.intellect,
+    psyche: r.psyche,
+    constitution: r.constitution,
+    manoeuvre: r.manoeuvre,
+    maxHp: r.maxHp,
+    maxMental: r.maxMental,
+    maxEndurance: r.maxEndurance,
+    faction: r.faction,
+    city: r.city,
+    level: r.level,
+    runes: r.runes as string[],
+  }));
+}
+
+/** Charge les affiliations d'une campagne (alphabétique). */
+export async function loadAffiliations(campaignId: string) {
+  const rows = await db
+    .select()
+    .from(affiliations)
+    .where(eq(affiliations.campaignId, campaignId))
+    .orderBy(affiliations.name);
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    type: r.type,
+    description: r.description,
+    avatarUrl: r.avatarUrl,
+    color: r.color,
   }));
 }
 

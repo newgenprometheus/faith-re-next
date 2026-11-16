@@ -22,7 +22,8 @@ import {
 } from "@/components/ui/empty";
 import type { RuneType } from "@/lib/faith-system";
 import { RuneInventory } from "./RuneInventory";
-import type { Character, CompetenceAleaItem, RuneRarity } from "./types";
+import { ItemInventory } from "./ItemInventory";
+import type { Character, CompetenceAleaItem, RuneRarity, ItemKind } from "./types";
 
 type RunePatch = {
   level?: number;
@@ -47,6 +48,15 @@ type Props = {
     description?: string;
   }) => Promise<void>;
   onRemoveCompetenceAlea?: (competenceId: string) => Promise<void>;
+  onAddItem?: (input: {
+    name: string;
+    type: ItemKind;
+    qty?: number;
+    description?: string;
+  }) => Promise<void>;
+  onRemoveItem?: (itemId: string) => Promise<void>;
+  onToggleEquip?: (itemId: string) => Promise<void>;
+  onUpdateItemQty?: (itemId: string, delta: number) => Promise<void>;
 };
 
 /* -------------------------- Cristaux de Lumière -------------------------- */
@@ -326,12 +336,23 @@ export function ObjectsTab({
   onUpdateLightCrystals,
   onAddCompetenceAlea,
   onRemoveCompetenceAlea,
+  onAddItem,
+  onRemoveItem,
+  onToggleEquip,
+  onUpdateItemQty,
 }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <LightCrystalsSection
         value={character.lightCrystals}
         onUpdate={onUpdateLightCrystals}
+      />
+      <ItemInventory
+        items={character.items}
+        onAddItem={onAddItem}
+        onRemoveItem={onRemoveItem}
+        onToggleEquip={onToggleEquip}
+        onUpdateItemQty={onUpdateItemQty}
       />
       <RuneInventory
         runes={character.runesInventory}

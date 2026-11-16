@@ -27,6 +27,7 @@ import { EvolutionSection } from "./EvolutionSection";
 import { ProfileEditor } from "./ProfileEditor";
 import { TrainingRequestButton } from "./TrainingRequestButton";
 import { RecoveryPanel } from "./RecoveryPanel";
+import { CombatStatsBanner } from "./CombatStatsBanner";
 import { DDDrawer, type RollContext } from "./DDDrawer";
 import type { CharacterSheetProps } from "./types";
 
@@ -72,6 +73,11 @@ export default function CharacterSheet({
   onRemoveCompetenceAlea,
   onAddCondition,
   onRemoveCondition,
+  onCombatStatChange,
+  onAddItem,
+  onRemoveItem,
+  onToggleEquip,
+  onUpdateItemQty,
 }: CharacterSheetProps) {
   const allocated = countAllocatedPoints(character.skills);
   const derivedLevel = character.level;
@@ -279,6 +285,12 @@ export default function CharacterSheet({
               onRemoveCondition={onRemoveCondition}
             />
 
+            {/* Bandeau des stats de combat */}
+            <CombatStatsBanner
+              character={character}
+              onCombatStatChange={onCombatStatChange}
+            />
+
             {/* 4 jauges circulaires vitales (Santé / Mental / Endurance / Flux) */}
             <VitalsHeader
               character={character}
@@ -386,6 +398,10 @@ export default function CharacterSheet({
             onUpdateLightCrystals={onUpdateLightCrystals}
             onAddCompetenceAlea={onAddCompetenceAlea}
             onRemoveCompetenceAlea={onRemoveCompetenceAlea}
+            onAddItem={onAddItem}
+            onRemoveItem={onRemoveItem}
+            onToggleEquip={onToggleEquip}
+            onUpdateItemQty={onUpdateItemQty}
           />
         </TabsContent>
 
@@ -426,12 +442,13 @@ export default function CharacterSheet({
         <DDDrawer
           context={drawerCtx}
           onClose={() => setDrawerCtx(null)}
-          onRoll={async (dd) => {
+          onRoll={async (dd, category) => {
             if (!drawerCtx) return;
             await onRollSkill({
               attrName: drawerCtx.attrName,
               skillName: drawerCtx.skillName,
               dd,
+              category,
             });
             setDrawerCtx(null);
           }}

@@ -53,6 +53,13 @@ export {
 } from "./world";
 
 export {
+  addAffiliation,
+  removeAffiliation,
+  updateAffiliation,
+  associateNpcToAffiliation,
+} from "./affiliations";
+
+export {
   updateCharacterFull,
   createCharacter,
   deleteCharacter,

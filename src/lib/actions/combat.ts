@@ -18,6 +18,7 @@ import { db } from "@/db";
 import { characters, conditions, type ConditionKind } from "@/db/schema";
 import { assertCanEdit } from "./guards";
 import { auth } from "@/lib/auth";
+import { syncDiscordCharacter } from "./character";
 
 // Note : l'édition des tags d'identité (race / pronoms / classe) passe par
 // `updateProfile` (section « Profil — identité »), pas par ce module combat.
@@ -83,6 +84,7 @@ export async function updateCombatStats(
     .set({ ...next, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, stats: next };
 }
@@ -124,6 +126,7 @@ export async function addCondition(
     .set({ updatedAt: new Date() })
     .where(eq(characters.id, characterId));
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, id: row.id, label, kind, diceModifier: row.diceModifier };
 }
@@ -150,6 +153,7 @@ export async function removeCondition(
     .set({ updatedAt: new Date() })
     .where(eq(characters.id, cond.characterId));
 
+  await syncDiscordCharacter(cond.characterId);
   revalidateAll();
   return { ok: true, id: conditionId };
 }

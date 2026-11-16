@@ -58,6 +58,18 @@ export async function addNpc(
     role?: string;
     disposition?: NpcDisposition;
     description?: string;
+    avatarUrl?: string;
+    intellect?: number;
+    psyche?: number;
+    constitution?: number;
+    manoeuvre?: number;
+    maxHp?: number;
+    maxMental?: number;
+    maxEndurance?: number;
+    faction?: string;
+    city?: string;
+    level?: number;
+    runes?: string[];
   },
 ): Promise<Result<{ id: string }>> {
   await assertMJ();
@@ -77,6 +89,18 @@ export async function addNpc(
       role: input.role?.trim().slice(0, 80) || null,
       disposition,
       description: input.description?.trim().slice(0, 2000) || null,
+      avatarUrl: input.avatarUrl?.trim() || null,
+      intellect: input.intellect ?? 3,
+      psyche: input.psyche ?? 3,
+      constitution: input.constitution ?? 3,
+      manoeuvre: input.manoeuvre ?? 3,
+      maxHp: input.maxHp ?? 45,
+      maxMental: input.maxMental ?? 45,
+      maxEndurance: input.maxEndurance ?? 250,
+      faction: input.faction?.trim().slice(0, 80) || null,
+      city: input.city?.trim().slice(0, 80) || null,
+      level: input.level ?? 1,
+      runes: input.runes ?? [],
     })
     .returning({ id: npcs.id });
 
@@ -100,6 +124,18 @@ export async function updateNpc(
     role?: string;
     disposition?: NpcDisposition;
     description?: string;
+    avatarUrl?: string;
+    intellect?: number;
+    psyche?: number;
+    constitution?: number;
+    manoeuvre?: number;
+    maxHp?: number;
+    maxMental?: number;
+    maxEndurance?: number;
+    faction?: string;
+    city?: string;
+    level?: number;
+    runes?: string[];
   },
 ): Promise<Result<Record<never, never>>> {
   await assertMJ();
@@ -109,6 +145,18 @@ export async function updateNpc(
     role: string | null;
     disposition: NpcDisposition;
     description: string | null;
+    avatarUrl: string | null;
+    intellect: number;
+    psyche: number;
+    constitution: number;
+    manoeuvre: number;
+    maxHp: number;
+    maxMental: number;
+    maxEndurance: number;
+    faction: string | null;
+    city: string | null;
+    level: number;
+    runes: string[];
   }> = {};
 
   if (typeof patch.name === "string") {
@@ -127,6 +175,32 @@ export async function updateNpc(
     const v = patch.description.trim();
     set.description = v.length ? v.slice(0, 2000) : null;
   }
+  if (typeof patch.avatarUrl === "string") {
+    const v = patch.avatarUrl.trim();
+    set.avatarUrl = v.length ? v : null;
+  }
+  if (typeof patch.intellect === "number") set.intellect = patch.intellect;
+  if (typeof patch.psyche === "number") set.psyche = patch.psyche;
+  if (typeof patch.constitution === "number") set.constitution = patch.constitution;
+  if (typeof patch.manoeuvre === "number") set.manoeuvre = patch.manoeuvre;
+  if (typeof patch.maxHp === "number") set.maxHp = patch.maxHp;
+  if (typeof patch.maxMental === "number") set.maxMental = patch.maxMental;
+  if (typeof patch.maxEndurance === "number") set.maxEndurance = patch.maxEndurance;
+  if (typeof patch.faction === "string") {
+    const v = patch.faction.trim();
+    set.faction = v.length ? v.slice(0, 80) : null;
+  }
+  if (typeof patch.city === "string") {
+    const v = patch.city.trim();
+    set.city = v.length ? v.slice(0, 80) : null;
+  }
+  if (typeof patch.level === "number") {
+    set.level = Math.max(1, patch.level);
+  }
+  if (Array.isArray(patch.runes)) {
+    set.runes = patch.runes.map(r => r.trim()).filter(Boolean);
+  }
+
   if (Object.keys(set).length === 0) return { ok: true };
 
   await db.update(npcs).set(set).where(eq(npcs.id, npcId));

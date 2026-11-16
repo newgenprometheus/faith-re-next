@@ -37,6 +37,7 @@ function buildMockBrad(): Character {
     fatePoints: 2,
     isPresent: true,
     avatarUrl: null,
+    discordMessageId: null,
     runes: ["Rune Physique (Feu)", "", ""],
     skills: Object.fromEntries(ALL_SKILLS.map((s) => [s, 1])),
     // Flux (mock palier P2)

@@ -6,6 +6,7 @@ import { items } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { ITEM_TYPES, type ItemType } from "@/lib/items";
 import { assertCanEdit } from "./guards";
+import { syncDiscordCharacter } from "./character";
 
 function revalidateAll() {
   revalidatePath("/me");
@@ -38,6 +39,7 @@ export async function addItem(
     })
     .returning({ id: items.id });
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, id: created.id };
 }
@@ -49,6 +51,7 @@ export async function removeItem(
 ): Promise<Result<Record<never, never>>> {
   await assertCanEdit(characterId);
   await db.delete(items).where(eq(items.id, itemId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true };
 }
@@ -65,6 +68,7 @@ export async function toggleEquip(
   }
   const next = item.equipped === 1 ? 0 : 1;
   await db.update(items).set({ equipped: next }).where(eq(items.id, itemId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, equipped: next === 1 };
 }
@@ -83,11 +87,13 @@ export async function updateItemQty(
   const next = item.qty + Math.round(delta);
   if (next <= 0) {
     await db.delete(items).where(eq(items.id, itemId));
+    await syncDiscordCharacter(characterId);
     revalidateAll();
     return { ok: true, qty: 0, removed: true };
   }
   const qty = Math.min(999, next);
   await db.update(items).set({ qty }).where(eq(items.id, itemId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, qty, removed: false };
 }

@@ -6,6 +6,7 @@ import { characters } from "@/db/schema";
 import { revalidatePath } from "next/cache";
 import { getFluxTier, getTechnicalTier } from "@/lib/faith-system";
 import { assertCanEdit, assertMJOnly } from "./guards";
+import { syncDiscordCharacter } from "./character";
 
 function revalidateAll() {
   revalidatePath("/me");
@@ -32,6 +33,7 @@ export async function updateFluxTrainings(
     .update(characters)
     .set({ fluxTrainings: next, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return {
@@ -58,6 +60,7 @@ export async function updateCombats(
     .update(characters)
     .set({ combatsReal: next, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return {
@@ -84,6 +87,7 @@ export async function updateTechnicalTrainings(
     .update(characters)
     .set({ technicalTrainings: next, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return {
@@ -112,6 +116,7 @@ export async function updateFlux(
     .update(characters)
     .set({ currentFlux: next, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return { ok: true, currentFlux: next, maxFlux: max };

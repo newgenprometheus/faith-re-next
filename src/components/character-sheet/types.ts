@@ -6,8 +6,9 @@
  * le niveau et la map skills sont déjà calculés par le parent (Server Action /
  * route loader).
  */
-import type { ENDURANCE_COSTS } from "@/lib/faith-system";
+import type { ENDURANCE_COSTS, RollCategory } from "@/lib/faith-system";
 import type { AttributeName } from "@/lib/skills";
+
 
 export type Character = {
   id: string;
@@ -33,6 +34,7 @@ export type Character = {
   skills: Record<string, number>;
   isPresent: boolean;
   avatarUrl: string | null;
+  discordMessageId: string | null;
   // --- Flux (2e jauge magique) ---
   fluxTrainings: number;
   technicalTrainings: number;
@@ -210,5 +212,6 @@ export type CharacterSheetProps = {
     attrName: AttributeName;
     skillName?: string | null;
     dd: number | null;
+    category?: RollCategory;
   }) => Promise<void>;
 };

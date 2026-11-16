@@ -260,6 +260,7 @@ export const publicRolls = pgTable("public_roll", {
   success: integer("success"),
   isCritSucc: integer("is_crit_succ").default(0).notNull(),
   isCritFail: integer("is_crit_fail").default(0).notNull(),
+  isPrivate: integer("is_private").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -346,6 +347,7 @@ export const sessionLogs = pgTable("session_log", {
   success: integer("success"),
   isCritSucc: integer("is_crit_succ").default(0).notNull(),
   isCritFail: integer("is_crit_fail").default(0).notNull(),
+  isPrivate: integer("is_private").default(0).notNull(),
   // Instant du jet d'origine (copié depuis public_roll.createdAt).
   rolledAt: timestamp("rolled_at", { withTimezone: true }).defaultNow().notNull(),
   // Instant de clôture de la session (partagé par le lot archivé).
@@ -383,7 +385,7 @@ export const journalEntries = pgTable("journal_entry", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// PNJ de campagne : fiche légère (nom, rôle, disposition, description).
+// PNJ de campagne : fiche (nom, rôle, disposition, description, stats, image, affiliations).
 export const npcs = pgTable("npc", {
   id: uuid("id").primaryKey().defaultRandom(),
   campaignId: uuid("campaign_id")
@@ -393,6 +395,32 @@ export const npcs = pgTable("npc", {
   role: text("role"),
   disposition: npcDispositionEnum("disposition").default("neutre").notNull(),
   description: text("description"),
+  avatarUrl: text("avatar_url"),
+  intellect: integer("intellect").default(3).notNull(),
+  psyche: integer("psyche").default(3).notNull(),
+  constitution: integer("constitution").default(3).notNull(),
+  manoeuvre: integer("manoeuvre").default(3).notNull(),
+  maxHp: integer("max_hp").default(45).notNull(),
+  maxMental: integer("max_mental").default(45).notNull(),
+  maxEndurance: integer("max_endurance").default(250).notNull(),
+  faction: text("faction"),
+  city: text("city"),
+  level: integer("level").default(1).notNull(),
+  runes: jsonb("runes").$type<string[]>().default([]).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Affiliations de campagne : factions, villes, guildes, etc.
+export const affiliations = pgTable("affiliation", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  campaignId: uuid("campaign_id")
+    .notNull()
+    .references(() => campaigns.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  type: text("type").default("faction").notNull(), // 'faction' | 'city' | 'guild' | 'other'
+  description: text("description"),
+  avatarUrl: text("avatar_url"),
+  color: text("color").default("primary"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -440,6 +468,7 @@ export const campaignsRelations = relations(campaigns, ({ many }) => ({
   sessions: many(gameSessions),
   journalEntries: many(journalEntries),
   npcs: many(npcs),
+  affiliations: many(affiliations),
 }));
 
 export const journalEntriesRelations = relations(journalEntries, ({ one }) => ({
@@ -452,6 +481,13 @@ export const journalEntriesRelations = relations(journalEntries, ({ one }) => ({
 export const npcsRelations = relations(npcs, ({ one }) => ({
   campaign: one(campaigns, {
     fields: [npcs.campaignId],
+    references: [campaigns.id],
+  }),
+}));
+
+export const affiliationsRelations = relations(affiliations, ({ one }) => ({
+  campaign: one(campaigns, {
+    fields: [affiliations.campaignId],
     references: [campaigns.id],
   }),
 }));
@@ -566,3 +602,5 @@ export type NewCompetenceAlea = typeof competencesAlea.$inferInsert;
 export type JournalEntry = typeof journalEntries.$inferSelect;
 export type Npc = typeof npcs.$inferSelect;
 export type NpcDisposition = (typeof npcDispositionEnum.enumValues)[number];
+export type Affiliation = typeof affiliations.$inferSelect;
+export type NewAffiliation = typeof affiliations.$inferInsert;

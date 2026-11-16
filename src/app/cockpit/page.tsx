@@ -28,6 +28,7 @@ import { QuickRollPanel } from "@/components/cockpit/QuickRollPanel";
 import { ModificationsPanel } from "@/components/cockpit/ModificationsPanel";
 import { JournalView } from "@/components/cockpit/JournalView";
 import { NpcsView } from "@/components/cockpit/NpcsView";
+import { AffiliationsView } from "@/components/cockpit/AffiliationsView";
 import { RulesView } from "@/components/cockpit/RulesView";
 import { TableView } from "@/components/cockpit/TableView";
 
@@ -49,9 +50,106 @@ const MOCK_JOURNAL = [
 ];
 
 const MOCK_NPCS = [
-  { id: "n1", name: "Orin le Borgne", role: "Marchand d'reliques", disposition: "neutre" as const, description: "Connaît tout le monde, ne fait confiance à personne." },
-  { id: "n2", name: "Dame Sève", role: "Gardienne du Bosquet", disposition: "allie" as const, description: "Alliée de Seraphina depuis l'Académie." },
-  { id: "n3", name: "Le Cendreux", role: "Chef de meute", disposition: "hostile" as const, description: "Traque la compagnie depuis le col." },
+  { 
+    id: "n1", 
+    name: "Orin le Borgne", 
+    role: "Marchand d'reliques", 
+    disposition: "neutre" as const, 
+    description: "Connaît tout le monde, ne fait confiance à personne.",
+    avatarUrl: null,
+    intellect: 4,
+    psyche: 3,
+    constitution: 2,
+    manoeuvre: 2,
+    maxHp: 40,
+    maxMental: 50,
+    maxEndurance: 240,
+    faction: "Ligue Marchande",
+    city: "Solitude",
+    level: 2,
+    runes: ["Rune de Protection"]
+  },
+  { 
+    id: "n2", 
+    name: "Dame Sève", 
+    role: "Gardienne du Bosquet", 
+    disposition: "allie" as const, 
+    description: "Alliée de Seraphina depuis l'Académie.",
+    avatarUrl: null,
+    intellect: 3,
+    psyche: 5,
+    constitution: 3,
+    manoeuvre: 2,
+    maxHp: 45,
+    maxMental: 60,
+    maxEndurance: 230,
+    faction: "Culte Lumineux",
+    city: "Val-Benoît",
+    level: 4,
+    runes: ["Rune de Vie", "Rune d'Esprit"]
+  },
+  { 
+    id: "n3", 
+    name: "Le Cendreux", 
+    role: "Chef de meute", 
+    disposition: "hostile" as const, 
+    description: "Traque la compagnie depuis le col.",
+    avatarUrl: null,
+    intellect: 2,
+    psyche: 2,
+    constitution: 4,
+    manoeuvre: 5,
+    maxHp: 55,
+    maxMental: 25,
+    maxEndurance: 290,
+    faction: "Les Écorcheurs",
+    city: "Forêt des Murmures",
+    level: 3,
+    runes: ["Rune de Force"]
+  },
+];
+
+const MOCK_AFFILIATIONS = [
+  {
+    id: "aff1",
+    name: "Ligue Marchande",
+    type: "faction",
+    description: "Une alliance d'intérêts commerciaux gérant le transit des cristaux.",
+    avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop",
+    color: "gold",
+  },
+  {
+    id: "aff2",
+    name: "Culte Lumineux",
+    type: "faction",
+    description: "Prêcheurs solaires et protecteurs du Val-Benoît.",
+    avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=200&auto=format&fit=crop",
+    color: "mhp",
+  },
+  {
+    id: "aff3",
+    name: "Les Écorcheurs",
+    type: "guild",
+    description: "Chasseurs de primes et mercenaires redoutables.",
+    avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&auto=format&fit=crop",
+    color: "hp",
+  },
+  {
+    id: "aff4",
+    name: "Solitude",
+    type: "city",
+    description: "Cité franche fortifiée bâtie sur un pic rocheux.",
+    avatarUrl: null,
+    color: "primary",
+  },
+  {
+    id: "aff5",
+    name: "Val-Benoît",
+    type: "city",
+    description: "Région fertile abritant le culte de l'aube.",
+    avatarUrl: null,
+    color: "endu",
+  },
 ];
 
 const SKILLS: Record<string, number> = Object.fromEntries(
@@ -95,6 +193,7 @@ function mk(id: string, name: string, hp: number, maxHp: number): Character {
     skills: SKILLS,
     isPresent: true,
     avatarUrl: null,
+    discordMessageId: null,
     fluxTrainings: 5,
     technicalTrainings: 3,
     combatsReal: 3,
@@ -414,7 +513,8 @@ function CockpitInner() {
       <JournalView campaignId="mock" entries={MOCK_JOURNAL} currentSession={14} canEdit />
     );
   } else if (view === "npcs") {
-    center = <NpcsView campaignId="mock" npcs={MOCK_NPCS} canEdit />;
+    center = <NpcsView campaignId="mock" npcs={MOCK_NPCS} affiliations={MOCK_AFFILIATIONS} canEdit />;} else if (view === "affiliations") {
+    center = <AffiliationsView campaignId="mock" affiliations={MOCK_AFFILIATIONS} npcs={MOCK_NPCS} canEdit />;
   } else if (view === "regles") {
     center = <RulesView />;
   } else if (view === "table") {

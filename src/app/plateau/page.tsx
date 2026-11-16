@@ -46,6 +46,7 @@ export default async function PlateauPage() {
     : allCharacters.filter((c) => c.isPresent);
 
   const defaultCharacterId = ownedRow?.id ?? characters[0]?.id ?? "";
+  const filteredRolls = recentRolls.filter((r) => !r.isPrivate || isMJ);
 
   return (
     <AppShell
@@ -59,7 +60,7 @@ export default async function PlateauPage() {
     >
       <PlateauClient
         characters={characters}
-        initialRolls={recentRolls}
+        initialRolls={filteredRolls}
         defaultCharacterId={defaultCharacterId}
         currentUserName={session.user.name ?? ""}
         currentUserId={session.user.id ?? ""}

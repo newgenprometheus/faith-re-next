@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Dices, X, Plus, Minus } from "lucide-react";
+import { type RollCategory, ROLL_CATEGORIES } from "@/lib/faith-system";
 
 /**
  * Lanceur de dés (cockpit MJ) — un seul type de jet : le **Pool de Dés**.
@@ -14,7 +15,7 @@ import { Dices, X, Plus, Minus } from "lucide-react";
 const DICE = [6, 8, 50, 100];
 
 type PoolDie = { sides: number; count: number };
-type RollInput = { dice: PoolDie[]; modifier: number; keep: "all" | "highest" | "lowest" };
+type RollInput = { dice: PoolDie[]; modifier: number; keep: "all" | "highest" | "lowest"; isPrivate?: boolean; category?: RollCategory };
 type RollResult = { total: number; isCritSucc: boolean; isCritFail: boolean };
 type Display = { total: number; crit: "succ" | "fail" | null; label: string };
 
@@ -32,13 +33,17 @@ function localRoll({ dice, modifier }: RollInput): RollResult {
 export function QuickRollPanel({
   characterName,
   onRoll,
+  isMJ = false,
 }: {
   characterName?: string;
   onRoll?: (input: RollInput) => Promise<RollResult | null>;
+  isMJ?: boolean;
 } = {}) {
   const [pool, setPool] = useState<PoolDie[]>([{ sides: 6, count: 2 }]);
   const [modSign, setModSign] = useState<1 | -1>(1);
   const [modValue, setModValue] = useState(0);
+  const [category, setCategory] = useState<RollCategory>("autre");
+  const [isPrivate, setIsPrivate] = useState(false);
   const [display, setDisplay] = useState<Display | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -47,7 +52,7 @@ export function QuickRollPanel({
 
   const rollPool = () => {
     if (pool.length === 0) return;
-    const input: RollInput = { dice: pool, modifier, keep: "all" };
+    const input: RollInput = { dice: pool, modifier, keep: "all", isPrivate, category };
     const label = pool.map((p) => `${p.count}d${p.sides}`).join(" + ") + modLabel;
     startTransition(async () => {
       const res = onRoll ? await onRoll(input) : localRoll(input);
@@ -203,6 +208,49 @@ export function QuickRollPanel({
             className="h-9 w-16 rounded-md border border-border bg-background/40 text-center font-mono text-sm tabular-nums slashed-zero text-foreground outline-none [appearance:textfield] focus:border-primary/40 sm:h-7 [&::-webkit-inner-spin-button]:appearance-none"
           />
         </div>
+
+        {/* Type de jet */}
+        <div className="mt-3 flex flex-col gap-1.5 border-t border-border pt-3">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-foreground-subtle">
+            Type de jet
+          </span>
+          <div className="grid grid-cols-4 gap-1">
+            {ROLL_CATEGORIES.map((cat) => {
+              const active = category === cat.value;
+              return (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setCategory(cat.value)}
+                  className={`flex h-auto flex-col items-center gap-0.5 py-1.5 px-0.5 rounded-md border text-center transition-all ${
+                    active
+                      ? "border-primary bg-primary/15 text-primary-hover hover:bg-primary/20 hover:text-primary-hover"
+                      : "border-border hover:bg-surface-overlay/50"
+                  }`}
+                >
+                  <span className="text-sm">{cat.icon}</span>
+                  <span className="text-[8px] font-semibold uppercase tracking-wider">
+                    {cat.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {isMJ && (
+          <label className="flex items-center gap-2 cursor-pointer mt-3 select-none">
+            <input
+              type="checkbox"
+              checked={isPrivate}
+              onChange={(e) => setIsPrivate(e.target.checked)}
+              className="size-3.5 rounded border-border"
+            />
+            <span className="text-3xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
+              Jet masqué (MJ)
+            </span>
+          </label>
+        )}
 
         <button
           type="button"

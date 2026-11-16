@@ -11,6 +11,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { RUNE_TYPES, type RuneType } from "@/lib/faith-system";
 import { assertCanEdit } from "./guards";
+import { syncDiscordCharacter } from "./character";
 
 const RUNE_RARITIES: RuneRarity[] = ["commune", "rare", "epique", "legendaire"];
 
@@ -39,6 +40,7 @@ export async function addRune(
     })
     .returning({ id: characterRunes.id });
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, id: created.id };
 }
@@ -50,6 +52,7 @@ export async function removeRune(
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
   await assertCanEdit(characterId);
   await db.delete(characterRunes).where(eq(characterRunes.id, runeId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true };
 }
@@ -94,6 +97,7 @@ export async function updateRune(
   if (Object.keys(set).length === 0) return { ok: true };
 
   await db.update(characterRunes).set(set).where(eq(characterRunes.id, runeId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true };
 }
@@ -114,6 +118,7 @@ export async function updateLightCrystals(
     .update(characters)
     .set({ lightCrystals: value, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, value };
 }
@@ -138,6 +143,7 @@ export async function addCompetenceAlea(
     })
     .returning({ id: competencesAlea.id });
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true, id: created.id };
 }
@@ -149,6 +155,7 @@ export async function removeCompetenceAlea(
 ): Promise<{ ok: true } | { ok: false; reason: string }> {
   await assertCanEdit(characterId);
   await db.delete(competencesAlea).where(eq(competencesAlea.id, competenceId));
+  await syncDiscordCharacter(characterId);
   revalidateAll();
   return { ok: true };
 }

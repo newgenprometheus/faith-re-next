@@ -123,12 +123,13 @@ export function MyCharacterClient({
           maxEndurance: res.maxEndurance,
         };
       }}
-      onRollSkill={async ({ attrName, skillName, dd }) => {
+      onRollSkill={async ({ attrName, skillName, dd, category }) => {
         await rollSkillWithDD({
           characterId: character.id,
           attrName,
           skillName: skillName ?? null,
           dd,
+          category,
         });
         refresh();
       }}

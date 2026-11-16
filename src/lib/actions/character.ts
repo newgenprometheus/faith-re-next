@@ -33,6 +33,8 @@ import {
 } from "@/lib/faith-system";
 import { countAllocatedPoints } from "@/lib/skills";
 import { assertCanEdit, assertMJOnly } from "./guards";
+import { syncCharacterEmbed, pushActionLog } from "@/lib/discord-webhook";
+import { loadCharacter } from "@/lib/load-character";
 
 type ActionResult<T> = ({ ok: true } & T) | { ok: false; reason: string };
 
@@ -50,6 +52,26 @@ const FATIGUE_DICE_MODIFIER = -4;
 function revalidateAll() {
   revalidatePath("/me");
   revalidatePath("/mj");
+}
+
+export async function syncDiscordCharacter(characterId: string): Promise<void> {
+  const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+  if (!webhookUrl) return;
+
+  try {
+    const char = await loadCharacter(characterId);
+    if (!char) return;
+
+    const res = await syncCharacterEmbed(webhookUrl, char, { mjMode: true });
+    if (res.messageId !== char.discordMessageId) {
+      await db
+        .update(characters)
+        .set({ discordMessageId: res.messageId })
+        .where(eq(characters.id, characterId));
+    }
+  } catch (e) {
+    console.error("Failed to sync character to Discord Webhook:", e);
+  }
 }
 
 /**
@@ -188,6 +210,7 @@ export async function updateSkill(
     .set({ updatedAt: new Date() })
     .where(eq(characters.id, characterId));
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return {
@@ -268,6 +291,7 @@ export async function updateVital(
     }
   }
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return { ok: true, newValue };
@@ -296,6 +320,32 @@ export async function applyEnduranceAction(
     .set({ currentEndurance: newEndurance, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
 
+  if (process.env.DISCORD_WEBHOOK_URL) {
+    try {
+      const payload = {
+        id: character.id,
+        name: character.name,
+        nom: character.nom,
+        age: character.age,
+        xp: character.xp,
+        enduranceTrainings: character.enduranceTrainings,
+        currentHp: character.currentHp,
+        currentMental: character.currentMental,
+        currentEndurance: newEndurance,
+        fatePoints: character.fatePoints,
+        runes: character.runes,
+        skills: {},
+      };
+      await pushActionLog(process.env.DISCORD_WEBHOOK_URL, payload as any, {
+        actionLabel: spec.label,
+        cost,
+      }, { mjMode: true });
+    } catch (e) {
+      console.error("Failed to push action log to Discord Webhook:", e);
+    }
+  }
+
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return { ok: true, newEndurance, cost, label: spec.label };
@@ -344,6 +394,7 @@ export async function updateXp(
     })
     .where(eq(characters.id, characterId));
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return {
@@ -394,6 +445,7 @@ export async function updateTrainings(
     .set({ enduranceTrainings: next, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return {
@@ -424,6 +476,7 @@ export async function updateFatePoints(
     .set({ fatePoints: clamped, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return { ok: true, value: clamped };
@@ -451,6 +504,7 @@ export async function updateRunes(
     .set({ runes: cleaned, updatedAt: new Date() })
     .where(eq(characters.id, characterId));
 
+  await syncDiscordCharacter(characterId);
   revalidateAll();
 
   return { ok: true, runes: cleaned };

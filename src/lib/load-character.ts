@@ -131,6 +131,7 @@ function hydrate(row: CharacterRow): HydratedCharacter {
     skills,
     isPresent: row.isPresent === 1,
     avatarUrl: row.avatarUrl ?? null,
+    discordMessageId: row.discordMessageId,
     // --- Flux ---
     fluxTrainings: row.fluxTrainings,
     technicalTrainings: row.technicalTrainings,

@@ -25,6 +25,9 @@ import {
   calculateAttribute,
   type AttributeName,
 } from "@/lib/skills";
+import { pushRollResult } from "@/lib/discord-webhook";
+import { type RollCategory, getDefaultCategory } from "@/lib/faith-system";
+
 
 function rollD6(): number {
   return 1 + Math.floor(Math.random() * 6);
@@ -51,12 +54,40 @@ async function loadCharacterWithSkills(characterId: string) {
   return { char, skillsMap };
 }
 
-/** Somme des modificateurs de dé des conditions actives (ex. Fatigue −4). */
-async function conditionsDiceMod(characterId: string): Promise<number> {
+/** Somme des modificateurs de dé des conditions actives (ex. Fatigue −4) et malus HP. */
+async function conditionsDiceMod(
+  characterId: string,
+  category: RollCategory,
+  currentHp: number
+): Promise<{ totalMod: number; appliedModsText: string[] }> {
   const conds = await db.query.conditions.findMany({
     where: eq(conditions.characterId, characterId),
   });
-  return conds.reduce((sum, c) => sum + (c.diceModifier ?? 0), 0);
+
+  let totalMod = 0;
+  const appliedModsText: string[] = [];
+
+  for (const c of conds) {
+    if (c.label === "Fatigue") {
+      if (category === "offensif" || category === "defensif") {
+        totalMod += c.diceModifier ?? 0;
+        appliedModsText.push(`Fatigue ${c.diceModifier ?? 0}`);
+      }
+    } else if (c.diceModifier !== 0) {
+      totalMod += c.diceModifier;
+      appliedModsText.push(`${c.label} ${c.diceModifier >= 0 ? "+" : ""}${c.diceModifier}`);
+    }
+  }
+
+  // Malus sous un seuil de HP (Dernier Souffle)
+  if (currentHp <= 15) {
+    if (category === "offensif" || category === "defensif") {
+      totalMod += -2;
+      appliedModsText.push(`Dernier Souffle -2`);
+    }
+  }
+
+  return { totalMod, appliedModsText };
 }
 
 // ---------------- rollPublicSkill ----------------
@@ -65,6 +96,8 @@ export async function rollPublicSkill(input: {
   characterId: string;
   attrName: AttributeName;
   skillName?: string | null;
+  isPrivate?: boolean;
+  category?: RollCategory;
 }): Promise<
   | {
       ok: true;
@@ -108,20 +141,31 @@ export async function rollPublicSkill(input: {
     skillScore = skillsMap[input.skillName] ?? 0;
   }
 
+  const category = input.category ?? getDefaultCategory(input.attrName, input.skillName);
+  const { totalMod, appliedModsText } = await conditionsDiceMod(
+    input.characterId,
+    category,
+    char.currentHp
+  );
+
   const d1 = rollD6();
   const d2 = rollD6();
   const diceSum = d1 + d2;
   const attrScore = calculateAttribute(skillsMap, input.attrName);
-  const totalDiceMod = await conditionsDiceMod(input.characterId);
   // Jet de COMPÉTENCE = 2d6 + compétence ; jet d'attribut seul = 2d6 + attribut.
   const bonus = resolvedSkill ? skillScore : attrScore;
-  const total = diceSum + bonus + totalDiceMod;
+  const total = diceSum + bonus + totalMod;
   const isCritSucc = d1 === 6 && d2 === 6;
   const isCritFail = d1 === 1 && d2 === 1;
 
-  const formula = resolvedSkill
-    ? `2d6 + ${resolvedSkill}`
-    : `2d6 + ${input.attrName}`;
+  const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+  let formula = resolvedSkill
+    ? `2d6 + ${resolvedSkill} [${categoryLabel}]`
+    : `2d6 + ${input.attrName} [${categoryLabel}]`;
+
+  if (appliedModsText.length > 0) {
+    formula += ` (${appliedModsText.join(", ")})`;
+  }
 
   const [inserted] = await db
     .insert(publicRolls)
@@ -139,8 +183,44 @@ export async function rollPublicSkill(input: {
       total,
       isCritSucc: isCritSucc ? 1 : 0,
       isCritFail: isCritFail ? 1 : 0,
+      isPrivate: input.isPrivate ? 1 : 0,
     })
     .returning({ id: publicRolls.id });
+
+
+  // Webhook Discord
+  if (!input.isPrivate && process.env.DISCORD_WEBHOOK_URL) {
+    try {
+      const payload = {
+        id: char.id,
+        name: char.name,
+        nom: char.nom,
+        age: char.age,
+        xp: char.xp,
+        enduranceTrainings: char.enduranceTrainings,
+        currentHp: char.currentHp,
+        currentMental: char.currentMental,
+        currentEndurance: char.currentEndurance,
+        fatePoints: char.fatePoints,
+        runes: char.runes,
+        skills: skillsMap,
+        discordMessageId: char.discordMessageId,
+      };
+      await pushRollResult(process.env.DISCORD_WEBHOOK_URL, payload, {
+        formula,
+        rolls: [d1, d2],
+        attrName: resolvedSkill ? undefined : input.attrName,
+        attrScore: resolvedSkill ? undefined : attrScore,
+        skillName: resolvedSkill,
+        skillScore: resolvedSkill ? skillScore : undefined,
+        total,
+        isCritSucc,
+        isCritFail,
+      });
+    } catch (e) {
+      console.error("Failed to push roll result to Discord Webhook:", e);
+    }
+  }
 
   revalidatePath("/plateau");
 
@@ -154,6 +234,8 @@ const FORMULA_RE = /^(\d+)d(\d+)(?:([+-])(\d+|int|psy|con|man|mnv))?$/i;
 export async function rollPublicFormula(input: {
   characterId: string;
   formula: string;
+  isPrivate?: boolean;
+  category?: RollCategory;
 }): Promise<
   { ok: true; rollId: string; total: number } | { ok: false; reason: string }
 > {
@@ -164,7 +246,7 @@ export async function rollPublicFormula(input: {
 
   const match = trimmed.match(FORMULA_RE);
   if (!match) {
-    return { ok: false, reason: "Syntaxe invalide. Ex : 2d6+5, 2d6+INT" };
+    return { ok: false, reason: "Syntaxe invalide. Ex : 2d6+5, 2d6+INT, 1d100+PSY" };
   }
 
   const count = parseInt(match[1], 10);
@@ -217,12 +299,33 @@ export async function rollPublicFormula(input: {
     }
   }
 
-  const totalDiceMod = await conditionsDiceMod(input.characterId);
-  const total = diceSum + modValue + totalDiceMod;
+  let category = input.category;
+  if (!category) {
+    if (/con|constitution/i.test(trimmed)) {
+      category = "defensif";
+    } else if (/psy|psyche/i.test(trimmed)) {
+      category = "social";
+    } else {
+      category = "autre";
+    }
+  }
+
+  const { totalMod, appliedModsText } = await conditionsDiceMod(
+    input.characterId,
+    category,
+    char.currentHp
+  );
+  const total = diceSum + modValue + totalMod;
 
   // Crits 2d6 standards uniquement (par défaut, lit double-6/double-1).
   const isCritSucc = count === 2 && sides === 6 && rolls[0] === 6 && rolls[1] === 6;
   const isCritFail = count === 2 && sides === 6 && rolls[0] === 1 && rolls[1] === 1;
+
+  const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+  let formula = `${formulaCanonical} [${categoryLabel}]`;
+  if (appliedModsText.length > 0) {
+    formula += ` (${appliedModsText.join(", ")})`;
+  }
 
   const [inserted] = await db
     .insert(publicRolls)
@@ -231,7 +334,7 @@ export async function rollPublicFormula(input: {
       characterName: char.name,
       casterUserId: session.user.id,
       casterName: session.user.name ?? "Inconnu",
-      formula: formulaCanonical,
+      formula,
       rolls,
       attrName: resolvedAttr,
       attrScore: resolvedAttr ? Math.abs(modValue) : null,
@@ -240,8 +343,41 @@ export async function rollPublicFormula(input: {
       total,
       isCritSucc: isCritSucc ? 1 : 0,
       isCritFail: isCritFail ? 1 : 0,
+      isPrivate: input.isPrivate ? 1 : 0,
     })
     .returning({ id: publicRolls.id });
+
+  // Webhook Discord
+  if (!input.isPrivate && process.env.DISCORD_WEBHOOK_URL) {
+    try {
+      const payload = {
+        id: char.id,
+        name: char.name,
+        nom: char.nom,
+        age: char.age,
+        xp: char.xp,
+        enduranceTrainings: char.enduranceTrainings,
+        currentHp: char.currentHp,
+        currentMental: char.currentMental,
+        currentEndurance: char.currentEndurance,
+        fatePoints: char.fatePoints,
+        runes: char.runes,
+        skills: skillsMap,
+        discordMessageId: char.discordMessageId,
+      };
+      await pushRollResult(process.env.DISCORD_WEBHOOK_URL, payload, {
+        formula: formulaCanonical,
+        rolls,
+        attrName: resolvedAttr ?? undefined,
+        attrScore: resolvedAttr ? Math.abs(modValue) : undefined,
+        total,
+        isCritSucc,
+        isCritFail,
+      });
+    } catch (e) {
+      console.error("Failed to push roll result to Discord Webhook:", e);
+    }
+  }
 
   revalidatePath("/plateau");
 
@@ -266,6 +402,8 @@ export async function rollPublicPool(input: {
   dice: { sides: number; count: number }[];
   modifier?: number;
   keep?: "all" | "highest" | "lowest";
+  isPrivate?: boolean;
+  category?: RollCategory;
 }): Promise<
   | {
       ok: true;
@@ -308,8 +446,11 @@ export async function rollPublicPool(input: {
   }
 
   let char;
+  let skillsMap;
   try {
-    char = (await loadCharacterWithSkills(input.characterId)).char;
+    const r = await loadCharacterWithSkills(input.characterId);
+    char = r.char;
+    skillsMap = r.skillsMap;
   } catch {
     return { ok: false, reason: "Personnage introuvable" };
   }
@@ -330,8 +471,13 @@ export async function rollPublicPool(input: {
     kept = rolls.reduce((acc, r) => acc + r, 0);
   }
 
-  const totalDiceMod = await conditionsDiceMod(input.characterId);
-  const total = kept + modifier + totalDiceMod;
+  const category = input.category ?? "autre";
+  const { totalMod, appliedModsText } = await conditionsDiceMod(
+    input.characterId,
+    category,
+    char.currentHp
+  );
+  const total = kept + modifier + totalMod;
 
   // Crits naturels : sur un dé unique décisif (avantage/désavantage ou 1 seul dé)
   // → face max / face 1. Sur une somme de pool, on les laisse à false.
@@ -353,7 +499,13 @@ export async function rollPublicPool(input: {
     keep === "highest" ? " (av.)" : keep === "lowest" ? " (dés.)" : "";
   const modPart =
     modifier !== 0 ? ` ${modifier > 0 ? "+" : "−"}${Math.abs(modifier)}` : "";
-  const formula = `${dicePart}${keepSuffix}${modPart}`;
+  const formulaCanonical = `${dicePart}${keepSuffix}${modPart}`;
+
+  const categoryLabel = category.charAt(0).toUpperCase() + category.slice(1);
+  let formula = `${formulaCanonical} [${categoryLabel}]`;
+  if (appliedModsText.length > 0) {
+    formula += ` (${appliedModsText.join(", ")})`;
+  }
 
   const [inserted] = await db
     .insert(publicRolls)
@@ -371,8 +523,39 @@ export async function rollPublicPool(input: {
       total,
       isCritSucc: isCritSucc ? 1 : 0,
       isCritFail: isCritFail ? 1 : 0,
+      isPrivate: input.isPrivate ? 1 : 0,
     })
     .returning({ id: publicRolls.id });
+
+  // Webhook Discord
+  if (!input.isPrivate && process.env.DISCORD_WEBHOOK_URL) {
+    try {
+      const payload = {
+        id: char.id,
+        name: char.name,
+        nom: char.nom,
+        age: char.age,
+        xp: char.xp,
+        enduranceTrainings: char.enduranceTrainings,
+        currentHp: char.currentHp,
+        currentMental: char.currentMental,
+        currentEndurance: char.currentEndurance,
+        fatePoints: char.fatePoints,
+        runes: char.runes,
+        skills: skillsMap,
+        discordMessageId: char.discordMessageId,
+      };
+      await pushRollResult(process.env.DISCORD_WEBHOOK_URL, payload, {
+        formula,
+        rolls,
+        total,
+        isCritSucc,
+        isCritFail,
+      });
+    } catch (e) {
+      console.error("Failed to push roll result to Discord Webhook:", e);
+    }
+  }
 
   revalidatePath("/plateau");
 
@@ -397,6 +580,7 @@ export async function listRecentPublicRolls(): Promise<
     success: boolean | null;
     isCritSucc: boolean;
     isCritFail: boolean;
+    isPrivate: boolean;
     createdAt: Date;
   }>
 > {
@@ -421,6 +605,7 @@ export async function listRecentPublicRolls(): Promise<
     success: r.success === null ? null : r.success === 1,
     isCritSucc: r.isCritSucc === 1,
     isCritFail: r.isCritFail === 1,
+    isPrivate: r.isPrivate === 1,
     createdAt: r.createdAt,
   }));
 }

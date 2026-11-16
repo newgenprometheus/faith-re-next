@@ -37,6 +37,8 @@ import {
 } from "@/lib/actions/plateau";
 import { rollSkillWithDD } from "@/lib/actions/roll-skill-dd";
 import { endSession } from "@/lib/actions";
+import { type RollCategory, ROLL_CATEGORIES, getDefaultCategory } from "@/lib/faith-system";
+
 import {
   SKILL_GROUPS,
   type AttributeName,
@@ -104,6 +106,7 @@ type FeedItem = {
   success: boolean | null;
   isCritSucc: boolean;
   isCritFail: boolean;
+  isPrivate: boolean;
   createdAt: Date;
 };
 
@@ -258,10 +261,12 @@ function Roster({
   characters,
   isMJ,
   ownedId,
+  className,
 }: {
   characters: Character[];
   isMJ: boolean;
   ownedId: string | null;
+  className?: string;
 }) {
   // Tri : présents d'abord, owner-first si présent
   const sorted = useMemo(() => {
@@ -277,7 +282,7 @@ function Roster({
   const presentCount = sorted.length;
 
   return (
-    <Card className="h-full min-h-0 gap-0 overflow-hidden py-0">
+    <Card className={`h-full min-h-0 gap-0 overflow-hidden py-0 ${className || ""}`}>
       <CardHeader className="flex flex-row items-center justify-between gap-2 border-b px-4 py-3">
         <CardTitle className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
           Compagnons à la table
@@ -503,12 +508,14 @@ function StatsChart({ items }: { items: FeedItem[] }) {
 function Scene({
   latest,
   items,
+  className,
 }: {
   latest: FeedItem | null;
   items: FeedItem[];
+  className?: string;
 }) {
   return (
-    <Card className="h-full min-h-0 overflow-hidden">
+    <Card className={`h-full min-h-0 overflow-hidden ${className || ""}`}>
       <CardContent className="flex h-full min-h-0 flex-col p-4 lg:p-5">
         <Tabs defaultValue="acte" className="flex h-full min-h-0 flex-1 flex-col">
           <TabsList variant="line" className="self-start">
@@ -664,9 +671,13 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 function Launcher({
   characters,
   defaultCharacterId,
+  isMJ,
+  className,
 }: {
   characters: Character[];
   defaultCharacterId: string;
+  isMJ: boolean;
+  className?: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -675,9 +686,11 @@ function Launcher({
   const [charA, setCharA] = useState(defaultCharacterId);
   const [attr, setAttr] = useState<AttributeName>("INTELLECT");
   const [skill, setSkill] = useState<string>("");
+  const [category, setCategory] = useState<RollCategory>("autre");
   const [ddMode, setDdMode] = useState<number | "free" | "libre">(12);
   const [customDD, setCustomDD] = useState<number>(10);
   const [errorA, setErrorA] = useState<string | null>(null);
+  const [isPrivate, setIsPrivate] = useState(false);
 
   // Section 2 — formule libre
   const [charB, setCharB] = useState(defaultCharacterId);
@@ -685,6 +698,11 @@ function Launcher({
   const [errorB, setErrorB] = useState<string | null>(null);
 
   const availableSkills = SKILL_GROUPS[attr] ?? [];
+
+  // Synchronise la catégorie quand l'attribut ou la compétence change
+  useEffect(() => {
+    setCategory(getDefaultCategory(attr, skill));
+  }, [attr, skill]);
 
   function effectiveDD(): number | null {
     if (ddMode === "libre") return null;
@@ -702,6 +720,8 @@ function Launcher({
           attrName: attr,
           skillName: skill || null,
           dd,
+          isPrivate,
+          category,
         });
         if (!res.ok) {
           setErrorA(res.reason);
@@ -712,6 +732,8 @@ function Launcher({
           characterId: charA,
           attrName: attr,
           skillName: skill || null,
+          isPrivate,
+          category,
         });
         if (!res.ok) {
           setErrorA(res.reason);
@@ -728,6 +750,8 @@ function Launcher({
       const res = await rollPublicFormula({
         characterId: charB,
         formula,
+        isPrivate,
+        category,
       });
       if (!res.ok) {
         setErrorB(res.reason);
@@ -748,7 +772,7 @@ function Launcher({
   };
 
   return (
-    <Card className="h-full min-h-0 gap-0 overflow-hidden py-0">
+    <Card className={`h-full min-h-0 gap-0 overflow-hidden py-0 ${className || ""}`}>
       <CardHeader className="border-b px-4 py-3">
         <CardTitle className="text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
           Lanceur
@@ -811,6 +835,34 @@ function Launcher({
             </label>
 
             <div className="flex flex-col gap-1.5">
+              <FieldLabel>Type de jet</FieldLabel>
+              <div className="grid grid-cols-4 gap-1">
+                {ROLL_CATEGORIES.map((cat) => {
+                  const active = category === cat.value;
+                  return (
+                    <Button
+                      key={cat.value}
+                      type="button"
+                      variant="outline"
+                      size="xs"
+                      onClick={() => setCategory(cat.value)}
+                      className={`h-auto flex-col gap-0.5 py-1 px-0.5 text-center transition-all ${
+                        active
+                          ? "border-primary bg-primary/15 text-primary-hover hover:bg-primary/20 hover:text-primary-hover"
+                          : "border-border hover:bg-surface-overlay/50"
+                      }`}
+                    >
+                      <span className="text-xs">{cat.icon}</span>
+                      <span className="text-[8px] font-semibold uppercase tracking-wider">
+                        {cat.label}
+                      </span>
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
               <FieldLabel>Difficulté</FieldLabel>
               <DDChipsRow
                 value={ddMode}
@@ -819,6 +871,20 @@ function Launcher({
                 onCustomChange={setCustomDD}
               />
             </div>
+
+            {isMJ && (
+              <label className="flex items-center gap-2 cursor-pointer mt-1 select-none">
+                <input
+                  type="checkbox"
+                  checked={isPrivate}
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                  className="size-3.5 rounded border-border"
+                />
+                <span className="text-3xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                  Jet privé (MJ)
+                </span>
+              </label>
+            )}
 
             <Button
               type="button"
@@ -869,6 +935,20 @@ function Launcher({
               />
             </label>
 
+            {isMJ && (
+              <label className="flex items-center gap-2 cursor-pointer mt-1 select-none">
+                <input
+                  type="checkbox"
+                  checked={isPrivate}
+                  onChange={(e) => setIsPrivate(e.target.checked)}
+                  className="size-3.5 rounded border-border"
+                />
+                <span className="text-3xs font-medium uppercase tracking-[0.1em] text-muted-foreground">
+                  Jet privé (MJ)
+                </span>
+              </label>
+            )}
+
             <Button
               type="button"
               variant="secondary"
@@ -907,8 +987,13 @@ function CarnetRow({ item }: { item: FeedItem }) {
         </Avatar>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-baseline gap-2">
-            <h4 className="truncate text-sm font-medium tracking-tight text-foreground">
+            <h4 className="truncate text-sm font-medium tracking-tight text-foreground flex items-center">
               {item.characterName}
+              {item.isPrivate && (
+                <span className="inline-flex items-center rounded px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-wide text-hp bg-destructive/10 border border-destructive/20 ml-2">
+                  🔒 Privé
+                </span>
+              )}
             </h4>
             {item.casterName && item.casterName !== item.characterName && (
               <span className="text-3xs uppercase tracking-[0.12em] text-ink-tertiary">
@@ -1235,19 +1320,19 @@ export function PlateauClient({
 
       {/* === lg+ : 3 panneaux resizable (orientation horizontale par défaut) === */}
       <ResizablePanelGroup className="hidden min-h-[560px] lg:flex">
-        <ResizablePanel defaultSize={22} minSize={16} className="pr-1.5">
-          <Roster characters={characters} isMJ={isMJ} ownedId={ownedCharacterId} />
+        <ResizablePanel defaultSize={22} minSize={16}>
+          <Roster characters={characters} isMJ={isMJ} ownedId={ownedCharacterId} className="mr-2" />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={50} minSize={32} className="px-1.5">
-          <Scene latest={latestItem} items={initialRolls} />
+        <ResizablePanel defaultSize={50} minSize={32}>
+          <Scene latest={latestItem} items={initialRolls} className="mx-2" />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={28} minSize={20} className="pl-1.5">
+        <ResizablePanel defaultSize={28} minSize={20}>
           {hasCharacters ? (
-            <Launcher characters={characters} defaultCharacterId={defaultCharacterId} />
+            <Launcher characters={characters} defaultCharacterId={defaultCharacterId} isMJ={isMJ} className="ml-2" />
           ) : (
-            <Card className="flex h-full items-center justify-center">
+            <Card className="flex h-full items-center justify-center ml-2">
               <CardContent className="text-center text-sm text-muted-foreground">
                 Aucun personnage à la table.
               </CardContent>
@@ -1260,7 +1345,7 @@ export function PlateauClient({
       <div className="flex flex-col gap-4 lg:hidden">
         <Scene latest={latestItem} items={initialRolls} />
         {hasCharacters ? (
-          <Launcher characters={characters} defaultCharacterId={defaultCharacterId} />
+          <Launcher characters={characters} defaultCharacterId={defaultCharacterId} isMJ={isMJ} />
         ) : (
           <Card className="items-center justify-center">
             <CardContent className="py-8 text-center text-sm text-muted-foreground">

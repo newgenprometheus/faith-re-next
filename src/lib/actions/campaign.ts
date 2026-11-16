@@ -393,6 +393,7 @@ export async function endSession(sessionId: string): Promise<
       success: r.success,
       isCritSucc: r.isCritSucc,
       isCritFail: r.isCritFail,
+      isPrivate: r.isPrivate,
       rolledAt: r.createdAt,
       endedAt,
       createdByUserId: session.user.id,
@@ -431,6 +432,7 @@ export type SessionLogDisplay = {
   success: boolean | null;
   isCritSucc: boolean;
   isCritFail: boolean;
+  isPrivate: boolean;
   rolledAt: Date;
   endedAt: Date;
 };
@@ -467,6 +469,7 @@ export async function getSessionLogs(
     success: r.success === null ? null : r.success === 1,
     isCritSucc: r.isCritSucc === 1,
     isCritFail: r.isCritFail === 1,
+    isPrivate: r.isPrivate === 1,
     rolledAt: r.rolledAt,
     endedAt: r.endedAt,
   }));

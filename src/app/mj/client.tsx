@@ -393,12 +393,13 @@ export function MJCharacterClient({
         toast(character.isPresent ? "Marqué absent" : "Marqué présent");
         refresh();
       }}
-      onRollSkill={async ({ attrName, skillName, dd }) => {
+      onRollSkill={async ({ attrName, skillName, dd, category }) => {
         await rollSkillWithDD({
           characterId: character.id,
           attrName,
           skillName: skillName ?? null,
           dd,
+          category,
         });
         refresh();
       }}
@@ -562,6 +563,7 @@ export function MJQuickRoll({
   return (
     <QuickRollPanel
       characterName={characterName}
+      isMJ={true}
       onRoll={async (input) => {
         const res = await rollPublicPool({ characterId, ...input });
         if (!res.ok) {

@@ -248,3 +248,37 @@ export const RUNE_TYPE_LABEL: Record<RuneType, string> = {
   armement: "Armement",
   predefinie: "Prédéfinie",
 };
+
+// ============================================================
+//  CATÉGORIES DE JETS — Offensif / Défensif / Social / Autre
+//  Pilote l'application des malus de Fatigue et HP.
+// ============================================================
+
+export type RollCategory = "offensif" | "defensif" | "social" | "autre";
+
+export const ROLL_CATEGORIES: { value: RollCategory; label: string; icon: string }[] = [
+  { value: "offensif", label: "Offensif", icon: "⚔️" },
+  { value: "defensif", label: "Défensif", icon: "🛡️" },
+  { value: "social", label: "Social", icon: "💬" },
+  { value: "autre", label: "Autre", icon: "⚙️" },
+];
+
+/** Détermine la catégorie par défaut selon l'attribut et la compétence. */
+export function getDefaultCategory(
+  attrName: string,
+  skillName?: string | null
+): RollCategory {
+  if (skillName) {
+    const socialSkills = ["Rhétorique", "Drame", "Suggestion", "Autorité", "Empathie", "Sang-Froid"];
+    const offensiveSkills = ["Coordination Main/Œil", "Puissance"];
+    const defensiveSkills = ["Résilience", "Volonté", "Inflexibilité", "Écaillé", "Vitesse de Réaction"];
+    if (socialSkills.includes(skillName)) return "social";
+    if (offensiveSkills.includes(skillName)) return "offensif";
+    if (defensiveSkills.includes(skillName)) return "defensif";
+  } else {
+    if (attrName === "PSYCHÉ") return "social";
+    if (attrName === "CONSTITUTION") return "defensif";
+  }
+  return "autre";
+}
+
